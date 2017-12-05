@@ -1,0 +1,8 @@
+package: github.com/miyabisun/conoha-cli
+import:
+- package: github.com/spf13/cobra
+  version: ^0.0.1
+- package: github.com/BurntSushi/toml
+  version: ^0.3.0
+- package: github.com/spf13/viper
+  version: ^1.0.0
