@@ -5,7 +5,8 @@ import (
 	"github.com/BurntSushi/toml"
 	"io/ioutil"
 	"os"
-	"os/user"
+
+	home "github.com/mitchellh/go-homedir"
 )
 
 type Conf struct {
@@ -29,17 +30,17 @@ type JsonToken struct {
 	Token ConfToken `json:"token"`
 }
 
-func HomeDir() string {
-	usr, err := user.Current()
+func ConfigPath() string {
+	config_path, err := home.Expand("~/.config/conoha.toml")
 	if err != nil {
 		panic(err)
 	}
-	return usr.HomeDir
+	return config_path
 }
 
 func Read() (Conf, error) {
 	config := Conf{}
-	_, err := toml.DecodeFile((HomeDir() + "/.config/conoha.toml"), &config)
+	_, err := toml.DecodeFile(ConfigPath(), &config)
 	return config, err
 }
 
@@ -51,10 +52,10 @@ func Write(config *Conf) error {
 		panic(err)
 	}
 
-	err = ioutil.WriteFile((HomeDir() + "/.config/conoha.toml"), buffer.Bytes(), 0777)
+	err = ioutil.WriteFile(ConfigPath(), buffer.Bytes(), 0777)
 	if err != nil {
 		// ファイルの生成を試みる
-		file, err := os.Create(HomeDir() + "/.config/conoha.toml")
+		file, err := os.Create(ConfigPath())
 		if err != nil {
 			return err
 		}
