@@ -1,0 +1,8 @@
+name = "test_machine"
+image = "vmi-docker-17.06-ubuntu-16.04-unified"
+flavor = "g-1gb"
+sshkey = "conoha-ssh-key-name"
+
+# 未実装
+# user_data = "cloud-config (URL or ./cloud.cfg)"
+

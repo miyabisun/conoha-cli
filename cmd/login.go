@@ -11,9 +11,9 @@ import (
 
 func init() {
 	RootCmd.AddCommand(LoginCmd)
-	LoginCmd.Flags().StringP("username", "u", "", "port to run application server on")
-	LoginCmd.Flags().StringP("password", "p", "", "port to run application server on")
-	LoginCmd.Flags().StringP("tenantid", "t", "", "port to run application server on")
+	LoginCmd.Flags().StringP("username", "u", "", "ユーザー名 (gncu00000000)")
+	LoginCmd.Flags().StringP("password", "p", "", "パスワード (9文字以上)")
+	LoginCmd.Flags().StringP("tenantid", "t", "", "テナントID (半角英数32文字)")
 	viper.BindPFlag("auth.username", LoginCmd.Flags().Lookup("username"))
 	viper.BindPFlag("auth.password", LoginCmd.Flags().Lookup("password"))
 	viper.BindPFlag("auth.tenant_id", LoginCmd.Flags().Lookup("tenantid"))
@@ -43,8 +43,8 @@ func findAuth() conf.ConfAuth {
 
 var LoginCmd = &cobra.Command{
 	Use:   "login",
-	Short: "Calculator of addition.",
-	Long:  "Calculator to perform the addition.",
+	Short: "login to ConoHa API.",
+	Long:  "login to ConoHa API.",
 	Run: func(cmd *cobra.Command, args []string) {
 		auth := findAuth()
 		body, statusCode, err := util.LoginFrom(&auth)

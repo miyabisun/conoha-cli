@@ -2,10 +2,10 @@ package conf
 
 import (
 	"bytes"
-	"github.com/BurntSushi/toml"
 	"io/ioutil"
 	"os"
 
+	"github.com/BurntSushi/toml"
 	home "github.com/mitchellh/go-homedir"
 )
 
@@ -22,12 +22,6 @@ type ConfToken struct {
 	Id       string `json:"id" toml:"id"`
 	IssuedAt string `json:"issued_at" toml:"issued_at"`
 	Expires  string `json:"expires" toml:"expires"`
-}
-type JsonAccess struct {
-	Access JsonToken `json:"access"`
-}
-type JsonToken struct {
-	Token ConfToken `json:"token"`
 }
 
 func ConfigPath() string {

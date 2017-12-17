@@ -12,6 +12,13 @@ import (
 	"github.com/miyabisun/conoha-cli/conf"
 )
 
+type jsonAccess struct {
+	Access jsonToken `json:"access"`
+}
+type jsonToken struct {
+	Token conf.ConfToken `json:"token"`
+}
+
 func LoginFrom(auth *conf.ConfAuth) ([]byte, int, error) {
 	client := &http.Client{}
 	reqBody := fmt.Sprintf("{\"auth\":{\"passwordCredentials\":{\"username\":\"%s\",\"password\":\"%s\"},\"tenantId\":\"%s\"}}", auth.User, auth.Pass, auth.TenantId)
@@ -54,7 +61,7 @@ func TokenId() (string, error) {
 }
 
 func ToToken(body []byte) (conf.ConfToken, error) {
-	access := conf.JsonAccess{}
+	var access jsonAccess
 	err := json.Unmarshal(body, &access)
 	if err != nil {
 		return conf.ConfToken{}, err
