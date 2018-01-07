@@ -1,14 +1,11 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 
-	"github.com/BurntSushi/toml"
-	"github.com/miyabisun/conoha-cli/conf"
-	"github.com/miyabisun/conoha-cli/util"
+	"github.com/miyabisun/conoha-cli/config/conoha"
+	"github.com/miyabisun/conoha-cli/config/spec"
+	endpoint "github.com/miyabisun/conoha-cli/endpoints/servers"
 	"github.com/spf13/cobra"
 )
 
@@ -21,29 +18,34 @@ var DestroyCmd = &cobra.Command{
 	Short: "destroy in ConoHa API.",
 	Long:  "destroy in ConoHa API(required logged in)",
 	Run: func(cmd *cobra.Command, args []string) {
-		spec := &Spec{}
-		_, err := toml.DecodeFile("spec.toml", spec)
+		err := conoha.Refresh()
 		if err != nil {
 			panic(err)
 		}
-		name := spec.Name
-		config, _ := conf.Read()
-		tokenId, _ := util.TokenId()
 
-		url := fmt.Sprintf(`https://compute.tyo1.conoha.io/v2/%s/servers/detail`, config.Auth.TenantId)
-		client := &http.Client{}
-		request, _ := http.NewRequest("GET", url, nil)
-		request.Header.Add("Accept", "application/json")
-		request.Header.Add("X-Auth-Token", tokenId)
-		resp, _ := client.Do(request)
-		defer resp.Body.Close()
-		body, _ := ioutil.ReadAll(resp.Body)
+		confSpec := &spec.Config{}
+		err = spec.Read(confSpec)
+		if err != nil {
+			panic(err)
+		}
+		name := confSpec.Name
 
-		vmlist := &Vmlist{}
-		json.Unmarshal(body, vmlist)
+		config := &conoha.Config{}
+		err = conoha.Read(config)
+		if err != nil {
+			panic(err)
+		}
+		tenantId := config.Auth.TenantId
+		tokenId := config.Token.Id
+
+		servers := &[]endpoint.Server{}
+		err = endpoint.Get(tenantId, tokenId, servers)
+		if err != nil {
+			panic(err)
+		}
 
 		var id string
-		for _, it := range vmlist.Servers {
+		for _, it := range *servers {
 			if it.Metadata.Instance_name_tag == name {
 				id = it.Id
 			}
@@ -53,13 +55,10 @@ var DestroyCmd = &cobra.Command{
 			return
 		}
 
-		url = fmt.Sprintf("https://compute.tyo1.conoha.io/v2/%s/servers/%s", config.Auth.TenantId, id)
-		client = &http.Client{}
-		request, _ = http.NewRequest("DELETE", url, nil)
-		request.Header.Add("Accept", "application/json")
-		request.Header.Add("X-Auth-Token", tokenId)
-		resp2, _ := client.Do(request)
-		defer resp2.Body.Close()
-		body, _ = ioutil.ReadAll(resp2.Body)
+		err = endpoint.Delete(tenantId, tokenId, id)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println("delete succesful.")
 	},
 }

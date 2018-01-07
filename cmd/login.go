@@ -3,8 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/miyabisun/conoha-cli/conf"
-	"github.com/miyabisun/conoha-cli/util"
+	"github.com/miyabisun/conoha-cli/config/conoha"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -19,13 +18,38 @@ func init() {
 	viper.BindPFlag("auth.tenant_id", LoginCmd.Flags().Lookup("tenantid"))
 }
 
-func findAuth() conf.ConfAuth {
-	auth := conf.ConfAuth{
+var LoginCmd = &cobra.Command{
+	Use:   "login",
+	Short: "login to ConoHa API.",
+	Long:  "login to ConoHa API.",
+	Run: func(cmd *cobra.Command, args []string) {
+		config := &conoha.Config{}
+		err := conoha.Read(config)
+		if err != nil {
+			panic(err)
+		}
+		config.Auth = *findAuth()
+		fmt.Printf("auth: %T, %s\n", config.Auth, config.Auth)
+
+		err = conoha.Login(&config.Auth, &config.Token)
+		if err != nil {
+			panic(err)
+		}
+
+		err = conoha.Write(config)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println("login successful.")
+	},
+}
+
+func findAuth() *conoha.ConfigAuth {
+	auth := conoha.ConfigAuth{
 		User:     viper.GetString("auth.username"),
 		Pass:     viper.GetString("auth.password"),
 		TenantId: viper.GetString("auth.tenant_id"),
 	}
-	fmt.Printf("auth: %T, %s\n", auth, auth)
 	if auth.User == "" {
 		fmt.Print("username: ")
 		fmt.Scan(&auth.User)
@@ -38,41 +62,5 @@ func findAuth() conf.ConfAuth {
 		fmt.Print("tenant_id: ")
 		fmt.Scan(&auth.TenantId)
 	}
-	return auth
-}
-
-var LoginCmd = &cobra.Command{
-	Use:   "login",
-	Short: "login to ConoHa API.",
-	Long:  "login to ConoHa API.",
-	Run: func(cmd *cobra.Command, args []string) {
-		auth := findAuth()
-		body, statusCode, err := util.LoginFrom(&auth)
-		if err != nil {
-			panic(err)
-		}
-		fmt.Printf("statusCode: %s\n", statusCode)
-		fmt.Println(string(body))
-		if statusCode != 200 {
-			return
-		}
-
-		token, err := util.ToToken(body)
-		if err != nil {
-			panic(err)
-		}
-
-		config, err := conf.Read()
-		if err != nil {
-			panic(err)
-		}
-		config.Auth = auth
-		config.Token = token
-
-		err = conf.Write(&config)
-		if err != nil {
-			panic(err)
-		}
-		fmt.Println("login successful.")
-	},
+	return &auth
 }
