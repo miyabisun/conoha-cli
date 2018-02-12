@@ -7,9 +7,9 @@ func Show(tokenId string, name string, item *Image) error {
 		return err
 	}
 
-	for _, image := range *items {
-		if image.Name == name {
-			*item = image
+	for _, it := range *items {
+		if it.Name == name {
+			*item = it
 			break
 		}
 	}

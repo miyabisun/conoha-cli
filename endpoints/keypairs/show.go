@@ -1,7 +1,7 @@
-package flavors
+package keypairs
 
-func Show(tenantId string, tokenId string, name string, item *Flavor) error {
-	items := &[]Flavor{}
+func Show(tenantId string, tokenId string, name string, item *Keypair) error {
+	items := &[]Keypair{}
 	err := Get(tenantId, tokenId, items)
 	if err != nil {
 		return err

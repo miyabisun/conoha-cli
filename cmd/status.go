@@ -2,15 +2,22 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/miyabisun/conoha-cli/config/conoha"
 	"github.com/miyabisun/conoha-cli/config/spec"
+	"github.com/miyabisun/conoha-cli/config/status"
 	endpoint "github.com/miyabisun/conoha-cli/endpoints/servers"
+	"github.com/miyabisun/conoha-cli/util"
+	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 )
 
+var isAll bool
+
 func init() {
 	RootCmd.AddCommand(StatusCmd)
+	StatusCmd.Flags().BoolVarP(&isAll, "all", "a", false, "Show All Status")
 }
 
 var StatusCmd = &cobra.Command{
@@ -18,36 +25,40 @@ var StatusCmd = &cobra.Command{
 	Short: "status in ConoHa API.",
 	Long:  "status in ConoHa API(required logged in)",
 	Run: func(cmd *cobra.Command, args []string) {
-		err := conoha.Refresh()
-		if err != nil {
-			panic(err)
-		}
+		try := util.Try
+		try(conoha.Refresh())
 
 		config := &conoha.Config{}
-		err = conoha.Read(config)
-		if err != nil {
-			panic(err)
-		}
+		try(conoha.Read(config))
 		tenantId := config.Auth.TenantId
 		tokenId := config.Token.Id
 
 		confSpec := &spec.Config{}
-		err = spec.Read(confSpec)
-		if err != nil {
-			panic(err)
-		}
+		try(spec.Read(confSpec))
 		name := confSpec.Name
 
 		server := &endpoint.Server{}
-		err = endpoint.Show(tenantId, tokenId, name, server)
-		if err != nil {
-			panic(err)
+		try(endpoint.Show(tenantId, tokenId, name, server))
+
+		state := server.Status
+		if state == "" {
+			state = "NONE"
+		} else {
+			try(status.Save(server))
 		}
 
-		status := server.Status
-		if status == "" {
-			status = "NONE"
+		data := [][]string{
+			[]string{server.Metadata.Instance_name_tag, state},
 		}
-		fmt.Println(status)
+
+		if isAll {
+			table := tablewriter.NewWriter(os.Stdout)
+			table.SetHeader([]string{"Name", "State"})
+			table.SetBorder(false)
+			table.AppendBulk(data)
+			table.Render()
+		} else {
+			fmt.Println(state)
+		}
 	},
 }

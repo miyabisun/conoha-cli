@@ -6,6 +6,7 @@ import (
 	"github.com/miyabisun/conoha-cli/config/conoha"
 	"github.com/miyabisun/conoha-cli/config/spec"
 	endpoint "github.com/miyabisun/conoha-cli/endpoints/servers"
+	"github.com/miyabisun/conoha-cli/util"
 	"github.com/spf13/cobra"
 )
 
@@ -18,31 +19,20 @@ var DestroyCmd = &cobra.Command{
 	Short: "destroy in ConoHa API.",
 	Long:  "destroy in ConoHa API(required logged in)",
 	Run: func(cmd *cobra.Command, args []string) {
-		err := conoha.Refresh()
-		if err != nil {
-			panic(err)
-		}
+		try := util.Try
+		try(conoha.Refresh())
 
 		confSpec := &spec.Config{}
-		err = spec.Read(confSpec)
-		if err != nil {
-			panic(err)
-		}
+		try(spec.Read(confSpec))
 		name := confSpec.Name
 
 		config := &conoha.Config{}
-		err = conoha.Read(config)
-		if err != nil {
-			panic(err)
-		}
+		try(conoha.Read(config))
 		tenantId := config.Auth.TenantId
 		tokenId := config.Token.Id
 
 		servers := &[]endpoint.Server{}
-		err = endpoint.Get(tenantId, tokenId, servers)
-		if err != nil {
-			panic(err)
-		}
+		try(endpoint.Get(tenantId, tokenId, servers))
 
 		var id string
 		for _, it := range *servers {
@@ -55,10 +45,7 @@ var DestroyCmd = &cobra.Command{
 			return
 		}
 
-		err = endpoint.Delete(tenantId, tokenId, id)
-		if err != nil {
-			panic(err)
-		}
+		try(endpoint.Delete(tenantId, tokenId, id))
 		fmt.Println("delete succesful.")
 	},
 }

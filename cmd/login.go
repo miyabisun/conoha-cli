@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/miyabisun/conoha-cli/config/conoha"
+	"github.com/miyabisun/conoha-cli/util"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -23,23 +24,14 @@ var LoginCmd = &cobra.Command{
 	Short: "login to ConoHa API.",
 	Long:  "login to ConoHa API.",
 	Run: func(cmd *cobra.Command, args []string) {
+		try := util.Try
 		config := &conoha.Config{}
-		err := conoha.Read(config)
-		if err != nil {
-			panic(err)
-		}
+		try(conoha.Read(config))
 		config.Auth = *findAuth()
 		fmt.Printf("auth: %T, %s\n", config.Auth, config.Auth)
 
-		err = conoha.Login(&config.Auth, &config.Token)
-		if err != nil {
-			panic(err)
-		}
-
-		err = conoha.Write(config)
-		if err != nil {
-			panic(err)
-		}
+		try(conoha.Login(&config.Auth, &config.Token))
+		try(conoha.Write(config))
 		fmt.Println("login successful.")
 	},
 }

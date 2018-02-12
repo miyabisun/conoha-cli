@@ -5,6 +5,7 @@ import (
 
 	"github.com/miyabisun/conoha-cli/config/conoha"
 	endpoint "github.com/miyabisun/conoha-cli/endpoints/keypairs"
+	"github.com/miyabisun/conoha-cli/util"
 	"github.com/spf13/cobra"
 )
 
@@ -13,24 +14,14 @@ var InfoSshCmd = &cobra.Command{
 	Short: "get registed ssh keypair-name ConoHa API.",
 	Long:  "get registed ssh keypair-name API (require logged in).",
 	Run: func(cmd *cobra.Command, args []string) {
-		err := conoha.Refresh()
-		if err != nil {
-			panic(err)
-		}
+		try := util.Try
+		try(conoha.Refresh())
 
 		config := &conoha.Config{}
-		err = conoha.Read(config)
-		if err != nil {
-			panic(err)
-		}
-		tenantId := config.Auth.TenantId
-		tokenId := config.Token.Id
+		try(conoha.Read(config))
 
 		keypairs := &[]endpoint.Keypair{}
-		err = endpoint.Get(tenantId, tokenId, keypairs)
-		if err != nil {
-			panic(err)
-		}
+		try(endpoint.Get(config.Auth.TenantId, config.Token.Id, keypairs))
 
 		for _, item := range *keypairs {
 			fmt.Println(item.Name)

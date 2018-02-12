@@ -8,6 +8,7 @@ import (
 	"github.com/miyabisun/conoha-cli/endpoints/flavors"
 	"github.com/miyabisun/conoha-cli/endpoints/images"
 	"github.com/miyabisun/conoha-cli/endpoints/servers"
+	"github.com/miyabisun/conoha-cli/util"
 	"github.com/spf13/cobra"
 )
 
@@ -20,31 +21,20 @@ var UpCmd = &cobra.Command{
 	Short: "up in ConoHa API.",
 	Long:  "up in ConoHa API(required logged in)",
 	Run: func(cmd *cobra.Command, args []string) {
-		err := conoha.Refresh()
-		if err != nil {
-			panic(err)
-		}
+		try := util.Try
+		try(conoha.Refresh())
 
 		confSpec := &spec.Config{}
-		err = spec.Read(confSpec)
-		if err != nil {
-			panic(err)
-		}
+		try(spec.Read(confSpec))
 		name := confSpec.Name
 
 		config := &conoha.Config{}
-		err = conoha.Read(config)
-		if err != nil {
-			panic(err)
-		}
+		try(conoha.Read(config))
 		tenantId := config.Auth.TenantId
 		tokenId := config.Token.Id
 
 		server := &servers.Server{}
-		err = servers.Show(tenantId, tokenId, name, server)
-		if err != nil {
-			panic(err)
-		}
+		try(servers.Show(tenantId, tokenId, name, server))
 
 		serverName := server.Metadata.Instance_name_tag
 		if serverName != "" {
@@ -53,29 +43,20 @@ var UpCmd = &cobra.Command{
 		}
 
 		image := &images.Image{}
-		err = images.Show(tokenId, confSpec.Image, image)
-		if err != nil {
-			panic(err)
-		}
+		try(images.Show(tokenId, confSpec.Image, image))
 		if image.Id == "" {
 			fmt.Printf("image %s is not found.\n", confSpec.Image)
 			return
 		}
 
 		flavor := &flavors.Flavor{}
-		err = flavors.Show(tenantId, tokenId, confSpec.Flavor, flavor)
-		if err != nil {
-			panic(err)
-		}
+		try(flavors.Show(tenantId, tokenId, confSpec.Flavor, flavor))
 		if flavor.Id == "" {
 			fmt.Printf("flavor %s is not found.\n", confSpec.Flavor)
 			return
 		}
 
-		err = servers.Post(tenantId, tokenId, name, image.Id, flavor.Id, confSpec.SSHKey)
-		if err != nil {
-			panic(err)
-		}
+		try(servers.Post(tenantId, tokenId, name, image.Id, flavor.Id, confSpec.SSHKey))
 		fmt.Println("up successful.")
 	},
 }
