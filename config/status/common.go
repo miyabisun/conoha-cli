@@ -8,15 +8,6 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
-type Config struct {
-	Id       string
-	Name     string
-	KeyName  string
-	IpAddr   string
-	ImageId  string
-	FlavorId string
-}
-
 func path() string {
 	return "status.toml"
 }

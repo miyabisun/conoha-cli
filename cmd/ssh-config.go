@@ -25,24 +25,13 @@ var SshConfigCmd = &cobra.Command{
 		config := &conoha.Config{}
 		try(conoha.Read(config))
 
-		statusConf := &status.Config{}
-		try(status.Read(statusConf))
+		sshConf := &status.SshConfig{}
+		try(status.Load(sshConf))
 
-		if name != "" {
-			statusConf.Name = name
-		}
-
-		sshPath := "~/.ssh/id_rsa"
-		for _, it := range config.Ssh {
-			if it.Name == statusConf.KeyName {
-				sshPath = it.Path
-				break
-			}
-		}
 		format := `Host %s
   HostName %s
   User %s
   IdentityFile %s`
-		fmt.Printf(format, statusConf.Name, statusConf.IpAddr, "root", sshPath)
+		fmt.Printf(format, sshConf.Name, sshConf.HostName, sshConf.User, sshConf.IdentityFile)
 	},
 }
