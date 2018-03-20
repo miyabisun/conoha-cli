@@ -26,7 +26,7 @@ Vagrantを意識しながらシンプルな設計を心がけていき、フォ�
 ## 日本語？マルチ言語対応は？
 
 基本的には日本人しか使わないと思うのでガチガチな日本語にしました。  
-CLIも日本語で説明していくようにします。
+CLIも日本語で説明していくようにしたいです。
 
 # Installation: インストール
 
@@ -69,12 +69,14 @@ Usage:
   conoha [command]
 
 Available Commands:
-  destroy     destroy in ConoHa API.
+  destroy     VPSインスタンスの削除
   help        Help about any command
-  info        get Infomation from ConoHa API.
-  login       login to ConoHa API.
-  status      status in ConoHa API.
-  up          up in ConoHa API.
+  info        APIからプランやイメージ一覧情報を取得
+  login       ConoHa APIへのログイン
+  ssh         VPSインスタンスへのSSH接続
+  ssh-config  SSH接続情報の表示
+  status      VPSインスタンスの状態を調べる
+  up          VPSインスタンスの起動
   version     Print the version number of conoha-cli
 
 Flags:
@@ -88,6 +90,7 @@ Use "conoha [command] --help" for more information about a command.
 1. ログインを行う
 2. `spec.toml`を作成する
 3. インスタンスを操作
+4. SSH接続
 
 ### 1. ログインを行う
 
@@ -141,6 +144,23 @@ sshkey = "conoha-ssh-key-name"
 イメージ名、プラン名の候補は下記のコマンドで表示することができます。
 
 ```Bash
+$ conoha info -h
+get Infomation from ConoHa API (require logged in).
+
+Usage:
+  conoha info [flags]
+  conoha info [command]
+
+Available Commands:
+  flavors     get flavors ConoHa API.
+  images      get images ConoHa API.
+  ssh         get registed ssh keypair-name ConoHa API.
+
+Flags:
+  -h, --help   help for info
+
+Use "conoha info [command] --help" for more information about a command.
+
 $ conoha info images
 vmi-drupal-8.4.2-centos-7.4-amd64-20gb
 vmi-drupal-8.4.2-centos-7.4-amd64
@@ -179,6 +199,59 @@ ACTIVE
 $ conoha destroy
 $ conoha status
 NONE
+```
+
+### 4. SSHログイン
+
+SSH接続を行うためにはホストマシンの秘密鍵ファイルと、  
+ConoHaのSSH-Keyの紐付けを行わなければ通信は行えない。
+
+id_rsa決め打ちやspec.tomlで共有しても良かったが、  
+複数環境で使う事を考慮してホストマシンに対応したファイルパスを利用する方式を採用している。
+
+```Bash
+$ conoha ssh set -h
+ConoHaに登録済みのSSH Keyと秘密鍵ファイルパスの紐付け
+
+Usage:
+  conoha ssh set <name> <path>
+  conoha ssh set -h
+
+Args:
+  name: ConoHaに登録済みのSSH Key名
+  path: 対応する秘密鍵のファイルパス (例: ~/.ssh/id_rsa)
+
+Help:
+  - ConoHaに登録済みのSSH Key名の一覧を表示
+    $ conoha info ssh
+
+$ conoha info ssh
+ssh-key-name1
+ssh-key-name2
+
+$ conoha set ssh-key-name1 ~/.ssh/id_rsa
+```
+
+続いて実際のSSH接続として、以下のモードを用意している。
+
+- ssh-configで`.ssh/config`で使えるフォーマットを出力
+- sshコマンドを利用したSSH接続
+- moshコマンドを利用した接続 (bash専用)
+- Go言語の crypt パッケージを利用したSSH接続
+
+```Bash
+$ conoha ssh-config
+Host test_machine
+  HostName 150.95.141.xxx
+  User root
+  IdentityFile /Users/xxxx/.ssh/id_rsa
+
+# SSH 接続
+# まずsshコマンドがあるかないか探し、あればsshコマンド、無ければcryptパッケージを利用する
+$ conoha ssh
+
+# Mobile Shell 接続 (bash専用)
+$ conoha ssh -m
 ```
 
 # license: ライセンス

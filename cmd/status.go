@@ -22,7 +22,7 @@ func init() {
 
 var StatusCmd = &cobra.Command{
 	Use:   "status",
-	Short: "status in ConoHa API.",
+	Short: "VPSインスタンスの状態を調べる",
 	Long:  "status in ConoHa API(required logged in)",
 	Run: func(cmd *cobra.Command, args []string) {
 		try := util.Try

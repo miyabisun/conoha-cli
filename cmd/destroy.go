@@ -16,7 +16,7 @@ func init() {
 
 var DestroyCmd = &cobra.Command{
 	Use:   "destroy",
-	Short: "destroy in ConoHa API.",
+	Short: "VPSインスタンスの削除",
 	Long:  "destroy in ConoHa API(required logged in)",
 	Run: func(cmd *cobra.Command, args []string) {
 		try := util.Try

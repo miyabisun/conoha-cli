@@ -10,7 +10,7 @@ import (
 
 var SshSetCmd = &cobra.Command{
 	Use:   "set <name> <path>",
-	Short: "ConoHaに登録済みのSSH Keyと秘密鍵のパスを紐付けます",
+	Short: "ConoHaに登録済みのSSH Keyと秘密鍵ファイルパスの紐付け",
 	Args:  cobra.MinimumNArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		name := args[0]

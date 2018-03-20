@@ -16,7 +16,7 @@ func init() {
 
 var SshCmd = &cobra.Command{
 	Use:   "ssh",
-	Short: "VPSインスタンスにSSH接続します",
+	Short: "VPSインスタンスへのSSH接続",
 	Run: func(cmd *cobra.Command, args []string) {
 		if isMosh {
 			sshClient.Mosh()

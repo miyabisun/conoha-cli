@@ -21,7 +21,7 @@ func init() {
 
 var LoginCmd = &cobra.Command{
 	Use:   "login",
-	Short: "login to ConoHa API.",
+	Short: "ConoHa APIへのログイン",
 	Long:  "login to ConoHa API.",
 	Run: func(cmd *cobra.Command, args []string) {
 		try := util.Try

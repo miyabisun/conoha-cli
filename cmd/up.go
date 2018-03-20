@@ -18,7 +18,7 @@ func init() {
 
 var UpCmd = &cobra.Command{
 	Use:   "up",
-	Short: "up in ConoHa API.",
+	Short: "VPSインスタンスの起動",
 	Long:  "up in ConoHa API(required logged in)",
 	Run: func(cmd *cobra.Command, args []string) {
 		try := util.Try

@@ -6,7 +6,7 @@ import (
 
 var InfoCmd = &cobra.Command{
 	Use:   "info",
-	Short: "get Infomation from ConoHa API.",
+	Short: "APIからプランやイメージ一覧情報を取得",
 	Long:  "get Infomation from ConoHa API (require logged in).",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }

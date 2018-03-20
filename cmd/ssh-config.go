@@ -18,7 +18,7 @@ func init() {
 
 var SshConfigCmd = &cobra.Command{
 	Use:   "ssh-config",
-	Short: "Show SSH config.",
+	Short: "SSH接続情報の表示",
 	Long:  "Show SSH config.",
 	Run: func(cmd *cobra.Command, args []string) {
 		try := util.Try
