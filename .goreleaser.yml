@@ -1,8 +1,8 @@
 # .goreleaser.yml
 # Build customization
 builds:
-  - main: apichecker.go
-    binary: apichecker
+  - main: conoha.go
+    binary: conoha
     goos:
       - windows
       - darwin
