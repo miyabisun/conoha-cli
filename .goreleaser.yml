@@ -1,0 +1,11 @@
+# .goreleaser.yml
+# Build customization
+builds:
+  - main: apichecker.go
+    binary: apichecker
+    goos:
+      - windows
+      - darwin
+      - linux
+    goarch:
+      - amd64
