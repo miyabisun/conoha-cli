@@ -30,30 +30,11 @@ CLIも日本語で説明していくようにしたいです。
 
 # Installation: インストール
 
-折角のGo言語製なので様々なOSのバイナリファイルを用意する予定ですが、  
-<del>時間が無かったので</del>まだ対応していません。
+バイナリファイルを[Releases](https://github.com/miyabisun/conoha-cli/releases)ページにて配布しています。
 
-暫くはGo言語のインストールされているマシンを用意してお使いください。
-
-```Bash
-// Macの場合
-$ brew install go
-$ brew install dep
-
-$ go get github.com/miyabisun/conoha-cli
-
-// 環境変数のGOPATHがデフォルトの状態
-$ cd ~/go/src/github.com/miyabisun/conoha-cli
-
-$ dep ensure
-
-$ go build conoha.go
-
-// PATHの通っているディレクトリへ移動
-$ mv conoha /usr/local/bin
-```
-
-この手順は酷すぎるな…バイナリの配布頑張ろう（汗
+対応しているOSのアプリケーションをダウンロードした後、  
+手持ちの解凍ソフトでバイナリファイルを取り出し、  
+PATHの通ったディレクトリに設置してください。
 
 # Usage
 
@@ -95,9 +76,9 @@ Use "conoha [command] --help" for more information about a command.
 ### 1. ログインを行う
 
 ConoHa APIは各種操作にトークンIDを要求します。  
-その有効期限は丁度1日、一度取得しても日を跨げば何度も取り直しになってしまうわけです。
+その有効期限は24時間しかありません。一度取得しても日を跨げば何度も取り直しになってしまいます。
 
-ConoHa CLIでは`~/.config/conoha.toml`というファイルを作成して、  
+ConoHa CLIでは`~/.config/conoha.toml`に設定ファイルを作成して、  
 ログイン情報やトークンIDを保存するという設計にしています。
 
 初回の`~/.config/conoha.toml`作成にはログインコマンドを使用します。  
@@ -204,10 +185,10 @@ NONE
 ### 4. SSHログイン
 
 SSH接続を行うためにはホストマシンの秘密鍵ファイルと、  
-ConoHaのSSH-Keyの紐付けを行わなければ通信は行えない。
+ConoHaのSSH-Keyの紐付けを行わなければ通信は行えません。
 
-id_rsa決め打ちやspec.tomlで共有しても良かったが、  
-複数環境で使う事を考慮してホストマシンに対応したファイルパスを利用する方式を採用している。
+id_rsa決め打ちやspec.tomlで共有する案もありましたが、  
+複数環境で使う事を考慮してホストマシンに対応したファイルパスを利用する思想としました。
 
 ```Bash
 $ conoha ssh set -h
@@ -232,7 +213,7 @@ ssh-key-name2
 $ conoha set ssh-key-name1 ~/.ssh/id_rsa
 ```
 
-続いて実際のSSH接続として、以下のモードを用意している。
+続いて実際のSSH接続には、以下のモードを用意しています。
 
 - ssh-configで`.ssh/config`で使えるフォーマットを出力
 - sshコマンドを利用したSSH接続
@@ -247,7 +228,7 @@ Host test_machine
   IdentityFile /Users/xxxx/.ssh/id_rsa
 
 # SSH 接続
-# まずsshコマンドがあるかないか探し、あればsshコマンド、無ければcryptパッケージを利用する
+# まずsshコマンドを検索し外部コマンドで実行、無ければcryptパッケージを利用してエミュレート
 $ conoha ssh
 
 # Mobile Shell 接続 (bash専用)
